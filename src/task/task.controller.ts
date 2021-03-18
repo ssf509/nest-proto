@@ -3,8 +3,9 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
+  HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -13,70 +14,68 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Task } from './entities/task.entity';
-import { findIndex } from 'rxjs/operators';
+import { GetAllTaskDto } from './dto/get-all-task.dto';
+import { AddTaskDto } from './dto/add-task.dto';
+import { TaskService } from './task.service';
+import { UpperAndFusionPipe } from '../pipes/upper-and-fusion.pipe';
 
 @Controller('task')
 export class TaskController {
-  constructor() {
-    this.tasks = [];
-  }
-  tasks: Task[];
+  constructor(private taskService: TaskService) {}
 
   @Get('v2')
   getTasksV2(@Req() request: Request, @Res() response: Response) {
-    console.log('Récupérer la liste des task');
+    console.log('Récupérer la liste des tasks');
     response.status(205);
     response.json({
-      contenu: `Je suis une réponse générée pour tester le retour `,
+      contenu: `Je suis une réponse générée à partir de l'objet Response de express`,
     });
   }
+
+  // Récupérer la liste des Tasks
   @Get()
-  getTasks(@Query() mesQueryParams) {
-    console.log(mesQueryParams);
-    return this.tasks;
+  getTasks(@Query() mesQueryParams: GetAllTaskDto): Task[] {
+    console.log(mesQueryParams instanceof GetAllTaskDto);
+    return this.taskService.getTasks();
   }
 
+  // Récupérer le Task via son Id
   @Get('/:id')
-  getTaskById(@Param('id') id) {
-    const task = this.tasks.find((actualTask) => actualTask.id === +id);
-    if (task) return task;
-    throw new NotFoundException(`La task d'id ${id} n'existe pas`);
+  getTaskById(
+    @Param(
+      'id',
+      new ParseIntPipe({
+        errorHttpStatusCode: HttpStatus.NOT_FOUND,
+      }),
+    )
+    id,
+  ) {
+    return this.taskService.getTaskById(id);
   }
 
+  // Ajouter un Task
   @Post()
-  addTask(@Body() newTask: Task) {
-    if (this.tasks.length) {
-      newTask.id = this.tasks[this.tasks.length - 1].id + 1;
-    } else {
-      newTask.id = 1;
-    }
-    this.tasks.push(newTask);
-    return newTask;
+  addTask(@Body() newTask: AddTaskDto): Task {
+    console.log(newTask);
+    return this.taskService.addTask(newTask);
   }
 
+  // Supprimer un Task via son id
   @Delete(':id')
-  deleteTasks(@Param('id') id) {
-    const index = this.tasks.findIndex((todo) => todo.id === +id);
-    if (index >= 0) {
-      this.tasks.splice(index, 1);
-    } else {
-      throw new NotFoundException(`la task ${id} n'existe pas`);
-    }
-    console.log('supprimer de la liste des task');
-    return {
-      message: `la task ${id} a bien été supprimé`,
-      count: 1,
-    };
+  deleteTask(@Param('id', ParseIntPipe) id) {
+    return this.taskService.deleteTask(id);
   }
 
   @Put(':id')
   modifierTask(
-    @Param('id') id,
-    @Body() newTask: Partial<Task>
+    @Param('id', ParseIntPipe) id,
+    @Body() newTask: Partial<AddTaskDto>,
   ) {
-    const task = this.getTaskById(id);
-    task.description = newTask.description? newTask.description : task.description;
-    task.name = newTask.name? newTask.name : task.name;
-    return task;
+    return this.taskService.updateTask(id, newTask);
+  }
+
+  @Post('pipe')
+  testPipe(@Param('data', UpperAndFusionPipe) paramData, @Body() data) {
+    return data;
   }
 }
