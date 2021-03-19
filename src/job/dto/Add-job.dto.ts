@@ -7,27 +7,9 @@ export class AddJobDto {
   @IsString()
   name: string;
 
-  @IsNotEmpty()
-  @IsString()
-  firstname: string;
-
-  @IsNotEmpty()
-  @Type(() => Number )
-  @IsNumber()
-  @Min(15)
-  @Max(65)
-  age: number;
-
-  @IsNotEmpty()
-  @Type(() => Number )
-  @IsNumber()
-  cin: number;
 
   @IsNotEmpty()
   @IsString()
   job: string;
 
-  @IsOptional()
-  @IsString()
-  path: string;
 }

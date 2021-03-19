@@ -13,22 +13,8 @@ export class JobEntity extends TimestampEntities {
   })
   name: string;
 
-  @Column({
-    length: 50,
-  })
-  firstname: string;
-
   @Column()
-  age: number;
-
-  @Column()
-  cin: number;
-
-  @Column()
-  job: string;
-
-  @Column()
-  path: string;
+  description: string;
 
   @ManyToOne((type) => UserEntity, (user) => user.jobs, {
     cascade: ['insert', 'update'],

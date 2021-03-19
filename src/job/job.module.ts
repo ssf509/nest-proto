@@ -6,11 +6,8 @@ import { JobEntity } from './entities/job.entity';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([JobEntity]),
-    UserModule
-  ],
+  imports: [TypeOrmModule.forFeature([JobEntity]), UserModule],
   controllers: [JobController],
-  providers: [JobService]
+  providers: [JobService],
 })
 export class JobModule {}
