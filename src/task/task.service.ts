@@ -10,7 +10,7 @@ export class TaskService {
     return this.tasks;
   }
   addTask(newTask: AddTaskDto): Task {
-    const { name, description} = newTask;
+    const { name, description } = newTask;
     let id;
     if (this.tasks.length) {
       id = this.tasks[this.tasks.length - 1].id + 1;
@@ -22,7 +22,7 @@ export class TaskService {
       id,
       name,
       description,
-      createdAt: new Date()
+      createdAt: new Date(),
     };
     this.tasks.push(task);
     return task;
@@ -30,8 +30,7 @@ export class TaskService {
 
   getTaskById(id: number): Task {
     const task = this.tasks.find((actualTask) => actualTask.id === id);
-    if (task)
-      return task;
+    if (task) return task;
     throw new NotFoundException(`Le task d'id ${id} n'existe pas`);
   }
 
@@ -39,22 +38,24 @@ export class TaskService {
     // Chercher l'objet via son id dans le tableau des tasks
     const index = this.tasks.findIndex((task) => task.id === +id);
     // Utiliser la méthode splice pour supprimer le task s'il existe
-    if (index >= 0 ) {
+    if (index >= 0) {
       this.tasks.splice(index, 1);
     } else {
       throw new NotFoundException(`Le task d'id ${id} n'existe pas`);
     }
     // Sinon je vais déclencher une erreur
     return {
-      message : `Le task d'id ${id} a été supprimé avec suucès`,
-      count: 1
+      message: `Le task d'id ${id} a été supprimé avec suucès`,
+      count: 1,
     };
   }
 
-  updateTask(id:number, newTask: Partial<Task>) {
+  updateTask(id: number, newTask: Partial<Task>) {
     const task = this.getTaskById(id);
-    task.description = newTask.description? newTask.description : task.description;
-    task.name = newTask.name? newTask.name : task.name;
+    task.description = newTask.description
+      ? newTask.description
+      : task.description;
+    task.name = newTask.name ? newTask.name : task.name;
     return task;
   }
 }
